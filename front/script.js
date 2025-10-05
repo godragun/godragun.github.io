@@ -142,15 +142,15 @@ function initWelcomeTiming() {
         // Check if we're on GitHub Pages (HTTPS)
         const isGitHubPages = window.location.hostname.includes('github.io');
         
-        // Faster loading detection for both GitHub Pages and local
-        const checkTimeout = isGitHubPages ? 4000 : 3000;
+        // More patient loading detection for Spline
+        const checkTimeout = isGitHubPages ? 15000 : 10000; // Give Spline more time
         
         setTimeout(() => {
             const hasContent = splineViewer.shadowRoot && 
                               splineViewer.shadowRoot.children.length > 0;
             
             if (!hasContent) {
-                console.log('Quick check failed - showing fallback');
+                console.log('Spline check failed after timeout - showing fallback');
                 splineViewer.style.display = 'none';
                 if (fallback) {
                     fallback.style.display = 'block';

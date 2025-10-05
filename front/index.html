@@ -61,7 +61,18 @@
 
     <!-- Security Layer 3: Obfuscated Spline Integration -->
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.64/build/spline-viewer.js"></script>
-    <div id="secure-3d-container" style="width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 2;">
+    
+    <!-- Direct Spline Viewer as Primary Method -->
+    <spline-viewer 
+        url="https://prod.spline.design/r5mqQnNU3ofM85w7/scene.splinecode"
+        loading="eager"
+        style="width: 100%; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 2;"
+        id="primary-spline-viewer"
+        crossorigin="anonymous"
+    ></spline-viewer>
+    
+    <!-- Backup Container for Dynamic Loading -->
+    <div id="secure-3d-container" style="width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; display: none;">
         <!-- 3D content will be loaded securely here -->
     </div>
 
@@ -107,88 +118,123 @@
                 }
             }
 
+            function checkPrimarySpline() {
+                console.log('Checking primary Spline viewer...');
+                const primaryViewer = document.getElementById('primary-spline-viewer');
+                
+                if (!primaryViewer) {
+                    console.log('Primary viewer not found, trying dynamic loading');
+                    loadSecureSpline();
+                    return;
+                }
+                
+                // Check if primary viewer has loaded
+                let attempts = 0;
+                const maxAttempts = 20; // 10 seconds
+                
+                const checkLoading = () => {
+                    attempts++;
+                    console.log(`Checking primary Spline loading attempt ${attempts}`);
+                    
+                    // Check if Spline has loaded content
+                    if (primaryViewer.shadowRoot && primaryViewer.shadowRoot.children.length > 0) {
+                        console.log('Primary Spline loaded successfully!');
+                        hideLoadingIndicator();
+                        return;
+                    }
+                    
+                    // Check if we've exceeded max attempts
+                    if (attempts >= maxAttempts) {
+                        console.log('Primary Spline timeout, trying dynamic loading');
+                        primaryViewer.style.display = 'none';
+                        loadSecureSpline();
+                        return;
+                    }
+                    
+                    // Continue checking every 500ms
+                    setTimeout(checkLoading, 500);
+                };
+                
+                // Start checking after a short delay
+                setTimeout(checkLoading, 1000);
+                
+                // Listen for load events
+                primaryViewer.addEventListener('load', function() {
+                    console.log('Primary Spline load event fired');
+                    hideLoadingIndicator();
+                });
+                
+                primaryViewer.addEventListener('error', function(e) {
+                    console.error('Primary Spline error:', e);
+                    primaryViewer.style.display = 'none';
+                    loadSecureSpline();
+                });
+            }
+
             function loadSecureSpline() {
-                // Show loading indicator immediately
-                const loadingIndicator = document.getElementById('loading-indicator');
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'block';
-                }
-
-                // Set up quick timeout for fallback
-                const fallbackTimeout = setTimeout(() => {
-                    console.log('Loading timeout - showing fallback');
-                    showFallback();
-                }, 5000); // 5 second timeout
-
-                // Relaxed domain verification - allow GitHub Pages and localhost
-                const allowedDomains = ['github.io', 'localhost', '127.0.0.1', 'godragun.github.io'];
-                const currentDomain = window.location.hostname;
+                console.log('Starting dynamic Spline loading...');
                 
-                // Only block obviously malicious domains
-                const blockedDomains = ['malicious.com', 'hacker.com'];
-                if (blockedDomains.some(domain => currentDomain.includes(domain))) {
-                    console.warn('Blocked domain');
-                    clearTimeout(fallbackTimeout);
-                    showFallback();
-                    return;
-                }
-                
-                // Relaxed rate limiting - allow more attempts
-                if (window.splineLoadAttempts >= 10) {
-                    console.warn('Too many load attempts');
-                    clearTimeout(fallbackTimeout);
-                    showFallback();
-                    return;
-                }
-                window.splineLoadAttempts = (window.splineLoadAttempts || 0) + 1;
-                
-                // Create secure spline viewer
+                // Show the backup container
                 const container = document.getElementById('secure-3d-container');
                 if (!container) {
-                    clearTimeout(fallbackTimeout);
+                    console.error('Backup container not found');
                     showFallback();
                     return;
                 }
+                container.style.display = 'block';
                 
                 const splineViewer = document.createElement('spline-viewer');
-                splineViewer.setAttribute('url', decryptComponent(secureComponents.base) + decryptComponent(secureComponents.path));
+                const splineUrl = decryptComponent(secureComponents.base) + decryptComponent(secureComponents.path);
+                console.log('Loading Spline from:', splineUrl);
+                
+                splineViewer.setAttribute('url', splineUrl);
                 splineViewer.setAttribute('loading', 'eager');
                 splineViewer.setAttribute('crossorigin', 'anonymous');
                 splineViewer.style.cssText = 'width: 100%; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 2;';
                 
-                // Success handler
+                container.appendChild(splineViewer);
+                
+                // Check loading with more patience
+                let attempts = 0;
+                const maxAttempts = 40; // 20 seconds
+                
+                const checkSplineLoading = () => {
+                    attempts++;
+                    console.log(`Checking dynamic Spline loading attempt ${attempts}`);
+                    
+                    if (splineViewer.shadowRoot && splineViewer.shadowRoot.children.length > 0) {
+                        console.log('Dynamic Spline loaded successfully!');
+                        hideLoadingIndicator();
+                        return;
+                    }
+                    
+                    if (attempts >= maxAttempts) {
+                        console.log('Dynamic Spline timeout, showing fallback');
+                        showFallback();
+                        return;
+                    }
+                    
+                    setTimeout(checkSplineLoading, 500);
+                };
+                
+                setTimeout(checkSplineLoading, 1000);
+                
                 splineViewer.addEventListener('load', function() {
-                    console.log('Spline loaded successfully');
-                    clearTimeout(fallbackTimeout);
+                    console.log('Dynamic Spline load event fired');
                     hideLoadingIndicator();
                 });
                 
-                // Error handler
-                splineViewer.addEventListener('error', function() {
-                    console.warn('Spline loading failed');
-                    clearTimeout(fallbackTimeout);
+                splineViewer.addEventListener('error', function(e) {
+                    console.error('Dynamic Spline error:', e);
                     showFallback();
                 });
-                
-                container.appendChild(splineViewer);
-                
-                // Quick loading check
-                setTimeout(() => {
-                    if (!splineViewer.shadowRoot || splineViewer.shadowRoot.children.length === 0) {
-                        console.log('Quick check failed - will show fallback soon');
-                    } else {
-                        console.log('Spline content detected');
-                        clearTimeout(fallbackTimeout);
-                        hideLoadingIndicator();
-                    }
-                }, 3000); // Check after 3 seconds
             }
             
-            // Initialize on DOM ready
+            // Initialize on DOM ready - try primary Spline first
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', loadSecureSpline);
+                document.addEventListener('DOMContentLoaded', checkPrimarySpline);
             } else {
-                loadSecureSpline();
+                checkPrimarySpline();
             }
         })();
     </script>

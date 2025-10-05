@@ -1,12 +1,46 @@
-// Show navigation when page loads
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        document.querySelector('.navigation').classList.add('visible');
-    }, 1000);
+// Security Layer 1: Code Obfuscation
+(function() {
+    'use strict';
     
-    // Auto-transition timing
-    initWelcomeTiming();
-});
+    // Anti-debugging protection
+    let devtools = {open: false, orientation: null};
+    setInterval(function() {
+        if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+            if (!devtools.open) {
+                devtools.open = true;
+                document.body.style.display = 'none';
+                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#fff;font-family:Arial"><h1>Access Denied</h1></div>';
+            }
+        }
+    }, 500);
+
+    // Prevent right-click context menu
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    // Prevent F12, Ctrl+Shift+I, Ctrl+U
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Show navigation when page loads
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const nav = document.querySelector('.navigation');
+            if (nav) nav.classList.add('visible');
+        }, 1000);
+        
+        // Auto-transition timing
+        initWelcomeTiming();
+    });
+})();
 
 // Welcome timing functionality
 function initWelcomeTiming() {
@@ -52,61 +86,93 @@ function initWelcomeTiming() {
     }, 20000); // 20 seconds
 }
 
-// Enhanced Spline loading detection for GitHub Pages
-function checkSplineViewer() {
-    const splineViewer = document.querySelector('spline-viewer');
-    const fallback = document.getElementById('fallback-3d');
+// Security Layer 2: Secure API Management
+(function() {
+    'use strict';
     
-    if (!splineViewer) {
-        console.log('Spline viewer not found, showing fallback');
-        if (fallback) {
-            fallback.style.display = 'block';
-            initFallback3D();
+    // Encrypted API endpoint (obfuscated)
+    const secureEndpoint = btoa('aHR0cHM6Ly9wcm9kLnNwbGluZS5kZXNpZ24v').split('').reverse().join('');
+    const decodedEndpoint = atob(secureEndpoint.split('').reverse().join(''));
+    
+    // Rate limiting protection
+    let requestCount = 0;
+    const maxRequests = 10;
+    const timeWindow = 60000; // 1 minute
+    
+    function checkRateLimit() {
+        if (requestCount >= maxRequests) {
+            console.warn('Rate limit exceeded');
+            return false;
         }
-        return;
+        requestCount++;
+        setTimeout(() => requestCount--, timeWindow);
+        return true;
     }
     
-    // Check if we're on GitHub Pages (HTTPS)
-    const isGitHubPages = window.location.hostname.includes('github.io');
-    
-    // For GitHub Pages, use a more aggressive fallback detection
-    if (isGitHubPages) {
-        // Check if the viewer has loaded content after a longer delay
-        setTimeout(() => {
-            const hasContent = splineViewer.shadowRoot && 
-                              splineViewer.shadowRoot.children.length > 0 &&
-                              splineViewer.offsetHeight > 0;
-            
-            if (!hasContent) {
-                console.log('Spline viewer failed to load on GitHub Pages, showing fallback');
-                splineViewer.style.display = 'none';
-                if (fallback) {
-                    fallback.style.display = 'block';
-                    initFallback3D();
-                }
-            } else {
-                console.log('Spline viewer loaded successfully on GitHub Pages');
+    // Enhanced Spline loading detection with security
+    function checkSplineViewer() {
+        if (!checkRateLimit()) return;
+        
+        const splineViewer = document.querySelector('spline-viewer');
+        const fallback = document.getElementById('fallback-3d');
+        
+        if (!splineViewer) {
+            if (fallback) {
+                fallback.style.display = 'block';
+                initFallback3D();
             }
-        }, 8000); // Longer timeout for GitHub Pages
-    } else {
-        // Regular detection for local development
-        setTimeout(() => {
-            const hasContent = splineViewer.shadowRoot && 
-                              splineViewer.shadowRoot.children.length > 0;
-            
-            if (!hasContent) {
-                console.log('Spline viewer failed to load, showing fallback');
-                splineViewer.style.display = 'none';
-                if (fallback) {
-                    fallback.style.display = 'block';
-                    initFallback3D();
-                }
-            } else {
-                console.log('Spline viewer loaded successfully');
+            return;
+        }
+        
+        // Security: Check if we're on the correct domain
+        const allowedDomains = ['godragun.github.io', 'localhost', '127.0.0.1'];
+        const currentDomain = window.location.hostname;
+        
+        if (!allowedDomains.some(domain => currentDomain.includes(domain))) {
+            console.warn('Unauthorized domain access');
+            if (fallback) {
+                fallback.style.display = 'block';
+                initFallback3D();
             }
-        }, 5000);
+            return;
+        }
+        
+        // Check if we're on GitHub Pages (HTTPS)
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        
+        if (isGitHubPages) {
+            setTimeout(() => {
+                const hasContent = splineViewer.shadowRoot && 
+                                  splineViewer.shadowRoot.children.length > 0 &&
+                                  splineViewer.offsetHeight > 0;
+                
+                if (!hasContent) {
+                    splineViewer.style.display = 'none';
+                    if (fallback) {
+                        fallback.style.display = 'block';
+                        initFallback3D();
+                    }
+                }
+            }, 8000);
+        } else {
+            setTimeout(() => {
+                const hasContent = splineViewer.shadowRoot && 
+                                  splineViewer.shadowRoot.children.length > 0;
+                
+                if (!hasContent) {
+                    splineViewer.style.display = 'none';
+                    if (fallback) {
+                        fallback.style.display = 'block';
+                        initFallback3D();
+                    }
+                }
+            }, 5000);
+        }
     }
-}
+    
+    // Expose function globally
+    window.checkSplineViewer = checkSplineViewer;
+})();
 
 // Initialize Spline viewer detection
 document.addEventListener('DOMContentLoaded', checkSplineViewer);

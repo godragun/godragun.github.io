@@ -6,10 +6,15 @@
     <title>Welcome - Portfolio</title>
     <meta name="description" content="Harendra Thennakoon - Computer Engineering Student & Future Innovator">
     
-    <!-- GitHub Pages compatibility -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://prod.spline.design; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; connect-src 'self' https://prod.spline.design https://unpkg.com;">
     <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
     <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()">
     
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -17,34 +22,83 @@
     <!-- Welcome text in background -->
     <div class="welcome-text">WELCOME</div>
     
-    <!-- Spline 3D viewer with GitHub Pages compatibility -->
+    <!-- Security Layer 3: Obfuscated Spline Integration -->
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.64/build/spline-viewer.js"></script>
-    <spline-viewer 
-        url="https://prod.spline.design/r5mqQnNU3ofM85w7/scene.splinecode"
-        loading="eager"
-        style="width: 100%; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 2;"
-        id="spline-viewer"
-        crossorigin="anonymous"
-        allow="camera; microphone; autoplay; encrypted-media;"
-    ></spline-viewer>
+    <div id="secure-3d-container" style="width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 2;">
+        <!-- 3D content will be loaded securely here -->
+    </div>
     
-    <!-- Alternative loading method for GitHub Pages -->
+    <!-- Security Layer 4: Dynamic Secure Loading -->
     <script>
-        // Force load Spline viewer for GitHub Pages
-        if (window.location.hostname.includes('github.io')) {
-            document.addEventListener('DOMContentLoaded', function() {
-                const script = document.createElement('script');
-                script.type = 'module';
-                script.src = 'https://unpkg.com/@splinetool/viewer@1.10.64/build/spline-viewer.js';
-                script.onload = function() {
-                    console.log('Spline viewer script loaded for GitHub Pages');
-                };
-                script.onerror = function() {
-                    console.log('Spline viewer script failed to load on GitHub Pages');
-                };
-                document.head.appendChild(script);
-            });
-        }
+        (function() {
+            'use strict';
+            
+            // Encrypted and obfuscated URL components
+            const secureComponents = {
+                base: btoa('aHR0cHM6Ly9wcm9kLnNwbGluZS5kZXNpZ24v').split('').reverse().join(''),
+                path: btoa('cjVtcVFuTlUzb2ZNO4d3Ny9zY2VuZS5zcGxpbmVjb2Rl').split('').reverse().join(''),
+                script: btoa('aHR0cHM6Ly91bnBrZy5jb20vQHNwbGluZXRvb2wvdmlld2VyQDEuMTAuNjQvYnVpbGQvc3BsaW5lLXZpZXdlci5qcw==').split('').reverse().join('')
+            };
+            
+            function decryptComponent(encrypted) {
+                return atob(encrypted.split('').reverse().join(''));
+            }
+            
+            function loadSecureSpline() {
+                // Domain verification
+                const allowedDomains = ['godragun.github.io', 'localhost'];
+                const currentDomain = window.location.hostname;
+                
+                if (!allowedDomains.some(domain => currentDomain.includes(domain))) {
+                    console.warn('Unauthorized domain');
+                    return;
+                }
+                
+                // Rate limiting
+                if (window.splineLoadAttempts >= 3) {
+                    console.warn('Too many load attempts');
+                    return;
+                }
+                window.splineLoadAttempts = (window.splineLoadAttempts || 0) + 1;
+                
+                // Create secure spline viewer
+                const container = document.getElementById('secure-3d-container');
+                if (!container) return;
+                
+                const splineViewer = document.createElement('spline-viewer');
+                splineViewer.setAttribute('url', decryptComponent(secureComponents.base) + decryptComponent(secureComponents.path));
+                splineViewer.setAttribute('loading', 'eager');
+                splineViewer.setAttribute('crossorigin', 'anonymous');
+                splineViewer.style.cssText = 'width: 100%; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 2;';
+                
+                // Add error handling
+                splineViewer.addEventListener('error', function() {
+                    console.warn('Spline loading failed, showing fallback');
+                    container.style.display = 'none';
+                    const fallback = document.getElementById('fallback-3d');
+                    if (fallback) {
+                        fallback.style.display = 'block';
+                        if (window.initFallback3D) window.initFallback3D();
+                    }
+                });
+                
+                container.appendChild(splineViewer);
+                
+                // Check loading status
+                setTimeout(() => {
+                    if (!splineViewer.shadowRoot || splineViewer.shadowRoot.children.length === 0) {
+                        splineViewer.dispatchEvent(new Event('error'));
+                    }
+                }, 10000);
+            }
+            
+            // Initialize on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadSecureSpline);
+            } else {
+                loadSecureSpline();
+            }
+        })();
     </script>
     
     <!-- Fallback 3D scene using Three.js -->

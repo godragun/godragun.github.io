@@ -1,3 +1,36 @@
+// Security Layer: Anti-debugging and protection
+(function() {
+    'use strict';
+    
+    // Anti-debugging protection
+    let devtools = {open: false};
+    setInterval(function() {
+        if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+            if (!devtools.open) {
+                devtools.open = true;
+                document.body.style.display = 'none';
+                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#fff;font-family:Arial"><h1>Access Denied</h1></div>';
+            }
+        }
+    }, 500);
+
+    // Prevent right-click context menu
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    // Prevent F12, Ctrl+Shift+I, Ctrl+U
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+})();
+
 // GSAP ScrollTrigger and Animation Scripts
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 

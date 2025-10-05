@@ -4,19 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome - Portfolio</title>
+    <meta name="description" content="Harendra Thennakoon - Computer Engineering Student & Future Innovator">
+    
+    <!-- GitHub Pages compatibility -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Welcome text in background -->
     <div class="welcome-text">WELCOME</div>
     
-    <!-- Spline 3D viewer -->
+    <!-- Spline 3D viewer with GitHub Pages compatibility -->
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.64/build/spline-viewer.js"></script>
     <spline-viewer 
         url="https://prod.spline.design/r5mqQnNU3ofM85w7/scene.splinecode"
-        loading="lazy"
-        style="width: 100%; height: 100vh; display: block;"
+        loading="eager"
+        style="width: 100%; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 2;"
+        id="spline-viewer"
+        crossorigin="anonymous"
+        allow="camera; microphone; autoplay; encrypted-media;"
     ></spline-viewer>
+    
+    <!-- Alternative loading method for GitHub Pages -->
+    <script>
+        // Force load Spline viewer for GitHub Pages
+        if (window.location.hostname.includes('github.io')) {
+            document.addEventListener('DOMContentLoaded', function() {
+                const script = document.createElement('script');
+                script.type = 'module';
+                script.src = 'https://unpkg.com/@splinetool/viewer@1.10.64/build/spline-viewer.js';
+                script.onload = function() {
+                    console.log('Spline viewer script loaded for GitHub Pages');
+                };
+                script.onerror = function() {
+                    console.log('Spline viewer script failed to load on GitHub Pages');
+                };
+                document.head.appendChild(script);
+            });
+        }
+    </script>
     
     <!-- Fallback 3D scene using Three.js -->
     <div id="fallback-3d" style="display: none; width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 2;">

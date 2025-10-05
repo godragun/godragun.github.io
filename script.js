@@ -1,36 +1,8 @@
-// Security Layer: Anti-debugging and protection
-(function() {
-    'use strict';
-    
-    // Minimal anti-debugging protection (very light)
-    let devtools = {open: false};
-    setInterval(function() {
-        // Only trigger on very obvious devtools usage
-        if (window.outerHeight - window.innerHeight > 250 || window.outerWidth - window.innerWidth > 250) {
-            if (!devtools.open) {
-                devtools.open = true;
-                // Just show a warning in console
-                console.warn('Developer tools detected');
-            }
-        }
-    }, 2000);
-
-    // Prevent right-click context menu
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-    });
-
-    // Prevent F12, Ctrl+Shift+I, Ctrl+U
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-            (e.ctrlKey && e.key === 'u')) {
-            e.preventDefault();
-            return false;
-        }
-    });
-})();
+// Basic protection - only right-click prevention
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
 
 // GSAP ScrollTrigger and Animation Scripts
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);

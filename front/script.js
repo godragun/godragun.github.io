@@ -1,47 +1,13 @@
-// Security Layer 1: Code Obfuscation
-(function() {
-    'use strict';
+// Simple navigation and timing
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const nav = document.querySelector('.navigation');
+        if (nav) nav.classList.add('visible');
+    }, 1000);
     
-    // Minimal anti-debugging protection (very light)
-    let devtools = {open: false, orientation: null};
-    setInterval(function() {
-        // Only trigger on very obvious devtools usage
-        if (window.outerHeight - window.innerHeight > 250 || window.outerWidth - window.innerWidth > 250) {
-            if (!devtools.open) {
-                devtools.open = true;
-                // Just show a warning in console
-                console.warn('Developer tools detected');
-            }
-        }
-    }, 2000);
-
-    // Prevent right-click context menu
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-    });
-
-    // Prevent F12, Ctrl+Shift+I, Ctrl+U
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-            (e.ctrlKey && e.key === 'u')) {
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    // Show navigation when page loads
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const nav = document.querySelector('.navigation');
-            if (nav) nav.classList.add('visible');
-        }, 1000);
-        
-        // Auto-transition timing
-        initWelcomeTiming();
-    });
-})();
+    // Auto-transition timing
+    initWelcomeTiming();
+});
 
 // Welcome timing functionality
 function initWelcomeTiming() {
@@ -87,45 +53,22 @@ function initWelcomeTiming() {
     }, 20000); // 20 seconds
 }
 
-// Simple Spline loading check (like before security)
-function checkSplineViewer() {
+// Simple Spline check - only show fallback if really needed
+setTimeout(() => {
     const splineViewer = document.querySelector('spline-viewer');
     const fallback = document.getElementById('fallback-3d');
     
-    if (!splineViewer) {
+    // Only show fallback if Spline viewer doesn't exist or has no content
+    if (!splineViewer || (splineViewer.shadowRoot && splineViewer.shadowRoot.children.length === 0)) {
+        console.log('Spline not loading - showing fallback');
         if (fallback) {
             fallback.style.display = 'block';
             initFallback3D();
         }
-        return;
+    } else {
+        console.log('Spline loaded successfully');
     }
-    
-    // Simple timeout check - give Spline time to load
-    setTimeout(() => {
-        const hasContent = splineViewer.shadowRoot && 
-                          splineViewer.shadowRoot.children.length > 0;
-        
-        if (!hasContent) {
-            console.log('Spline check failed - showing fallback');
-            splineViewer.style.display = 'none';
-            if (fallback) {
-                fallback.style.display = 'block';
-                initFallback3D();
-            }
-        } else {
-            console.log('3D content loaded successfully');
-        }
-    }, 8000); // 8 seconds should be enough
-}
-
-// Expose function globally
-window.checkSplineViewer = checkSplineViewer;
-
-// Initialize Spline viewer detection
-document.addEventListener('DOMContentLoaded', checkSplineViewer);
-
-// Also check on window load as backup
-window.addEventListener('load', checkSplineViewer);
+}, 10000); // Wait 10 seconds before checking
 
 function initFallback3D() {
     // Create an elegant fallback for GitHub Pages

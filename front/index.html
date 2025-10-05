@@ -6,15 +6,8 @@
     <title>Welcome - Portfolio</title>
     <meta name="description" content="Harendra Thennakoon - Computer Engineering Student & Future Innovator">
     
-    <!-- Enhanced Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://prod.spline.design; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; connect-src 'self' https://prod.spline.design https://unpkg.com;">
-    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
-    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    <!-- Basic Security Headers (Minimal) -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()">
     
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -75,27 +68,16 @@
         }
     </style>
     
-    <!-- Simple Loading Management (like before security) -->
+    <!-- Simple Loading Management -->
     <script>
-        // Simple loading indicator management
-        function hideLoadingIndicator() {
-            const loadingIndicator = document.getElementById('loading-indicator');
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'none';
-            }
-        }
-
-        // Hide loading indicator after Spline loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait a bit for Spline to load, then hide loading indicator
-            setTimeout(() => {
-                hideLoadingIndicator();
-            }, 3000); // 3 seconds should be enough for most cases
-        });
-
-        // Also hide loading indicator when Spline loads
+        // Hide loading indicator after page loads
         window.addEventListener('load', function() {
-            hideLoadingIndicator();
+            setTimeout(() => {
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+            }, 2000);
         });
     </script>
     

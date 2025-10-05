@@ -2,18 +2,18 @@
 (function() {
     'use strict';
     
-    // Light anti-debugging protection (less aggressive)
+    // Minimal anti-debugging protection (very light)
     let devtools = {open: false};
     setInterval(function() {
         // Only trigger on very obvious devtools usage
-        if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
+        if (window.outerHeight - window.innerHeight > 250 || window.outerWidth - window.innerWidth > 250) {
             if (!devtools.open) {
                 devtools.open = true;
-                // Just show a warning instead of blocking everything
-                console.warn('Developer tools detected - please respect the portfolio');
+                // Just show a warning in console
+                console.warn('Developer tools detected');
             }
         }
-    }, 1000);
+    }, 2000);
 
     // Prevent right-click context menu
     document.addEventListener('contextmenu', function(e) {

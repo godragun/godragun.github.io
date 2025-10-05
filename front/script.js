@@ -2,18 +2,18 @@
 (function() {
     'use strict';
     
-    // Light anti-debugging protection (less aggressive)
+    // Minimal anti-debugging protection (very light)
     let devtools = {open: false, orientation: null};
     setInterval(function() {
         // Only trigger on very obvious devtools usage
-        if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
+        if (window.outerHeight - window.innerHeight > 250 || window.outerWidth - window.innerWidth > 250) {
             if (!devtools.open) {
                 devtools.open = true;
-                // Just show a warning instead of blocking everything
-                console.warn('Developer tools detected - please respect the portfolio');
+                // Just show a warning in console
+                console.warn('Developer tools detected');
             }
         }
-    }, 1000);
+    }, 2000);
 
     // Prevent right-click context menu
     document.addEventListener('contextmenu', function(e) {
@@ -87,84 +87,39 @@ function initWelcomeTiming() {
     }, 20000); // 20 seconds
 }
 
-// Security Layer 2: Secure API Management
-(function() {
-    'use strict';
+// Simple Spline loading check (like before security)
+function checkSplineViewer() {
+    const splineViewer = document.querySelector('spline-viewer');
+    const fallback = document.getElementById('fallback-3d');
     
-    // Encrypted API endpoint (obfuscated)
-    const secureEndpoint = btoa('aHR0cHM6Ly9wcm9kLnNwbGluZS5kZXNpZ24v').split('').reverse().join('');
-    const decodedEndpoint = atob(secureEndpoint.split('').reverse().join(''));
-    
-    // Rate limiting protection
-    let requestCount = 0;
-    const maxRequests = 10;
-    const timeWindow = 60000; // 1 minute
-    
-    function checkRateLimit() {
-        if (requestCount >= maxRequests) {
-            console.warn('Rate limit exceeded');
-            return false;
+    if (!splineViewer) {
+        if (fallback) {
+            fallback.style.display = 'block';
+            initFallback3D();
         }
-        requestCount++;
-        setTimeout(() => requestCount--, timeWindow);
-        return true;
+        return;
     }
     
-    // Enhanced Spline loading detection with security
-    function checkSplineViewer() {
-        if (!checkRateLimit()) return;
+    // Simple timeout check - give Spline time to load
+    setTimeout(() => {
+        const hasContent = splineViewer.shadowRoot && 
+                          splineViewer.shadowRoot.children.length > 0;
         
-        const splineViewer = document.querySelector('spline-viewer');
-        const fallback = document.getElementById('fallback-3d');
-        
-        if (!splineViewer) {
+        if (!hasContent) {
+            console.log('Spline check failed - showing fallback');
+            splineViewer.style.display = 'none';
             if (fallback) {
                 fallback.style.display = 'block';
                 initFallback3D();
             }
-            return;
+        } else {
+            console.log('3D content loaded successfully');
         }
-        
-        // Relaxed security: Allow GitHub Pages and common domains
-        const blockedDomains = ['malicious.com', 'hacker.com', 'phishing.com'];
-        const currentDomain = window.location.hostname;
-        
-        // Only block obviously malicious domains
-        if (blockedDomains.some(domain => currentDomain.includes(domain))) {
-            console.warn('Blocked domain access');
-            if (fallback) {
-                fallback.style.display = 'block';
-                initFallback3D();
-            }
-            return;
-        }
-        
-        // Check if we're on GitHub Pages (HTTPS)
-        const isGitHubPages = window.location.hostname.includes('github.io');
-        
-        // More patient loading detection for Spline
-        const checkTimeout = isGitHubPages ? 15000 : 10000; // Give Spline more time
-        
-        setTimeout(() => {
-            const hasContent = splineViewer.shadowRoot && 
-                              splineViewer.shadowRoot.children.length > 0;
-            
-            if (!hasContent) {
-                console.log('Spline check failed after timeout - showing fallback');
-                splineViewer.style.display = 'none';
-                if (fallback) {
-                    fallback.style.display = 'block';
-                    initFallback3D();
-                }
-            } else {
-                console.log('3D content loaded successfully');
-            }
-        }, checkTimeout);
-    }
-    
-    // Expose function globally
-    window.checkSplineViewer = checkSplineViewer;
-})();
+    }, 8000); // 8 seconds should be enough
+}
+
+// Expose function globally
+window.checkSplineViewer = checkSplineViewer;
 
 // Initialize Spline viewer detection
 document.addEventListener('DOMContentLoaded', checkSplineViewer);

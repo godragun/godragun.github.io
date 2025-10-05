@@ -2,17 +2,18 @@
 (function() {
     'use strict';
     
-    // Anti-debugging protection
+    // Light anti-debugging protection (less aggressive)
     let devtools = {open: false};
     setInterval(function() {
-        if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+        // Only trigger on very obvious devtools usage
+        if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
             if (!devtools.open) {
                 devtools.open = true;
-                document.body.style.display = 'none';
-                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#fff;font-family:Arial"><h1>Access Denied</h1></div>';
+                // Just show a warning instead of blocking everything
+                console.warn('Developer tools detected - please respect the portfolio');
             }
         }
-    }, 500);
+    }, 1000);
 
     // Prevent right-click context menu
     document.addEventListener('contextmenu', function(e) {

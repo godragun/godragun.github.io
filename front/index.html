@@ -45,17 +45,19 @@
             }
             
             function loadSecureSpline() {
-                // Domain verification
-                const allowedDomains = ['godragun.github.io', 'localhost'];
+                // Relaxed domain verification - allow GitHub Pages and localhost
+                const allowedDomains = ['github.io', 'localhost', '127.0.0.1', 'godragun.github.io'];
                 const currentDomain = window.location.hostname;
                 
-                if (!allowedDomains.some(domain => currentDomain.includes(domain))) {
-                    console.warn('Unauthorized domain');
+                // Only block obviously malicious domains
+                const blockedDomains = ['malicious.com', 'hacker.com'];
+                if (blockedDomains.some(domain => currentDomain.includes(domain))) {
+                    console.warn('Blocked domain');
                     return;
                 }
                 
-                // Rate limiting
-                if (window.splineLoadAttempts >= 3) {
+                // Relaxed rate limiting - allow more attempts
+                if (window.splineLoadAttempts >= 10) {
                     console.warn('Too many load attempts');
                     return;
                 }
@@ -84,12 +86,18 @@
                 
                 container.appendChild(splineViewer);
                 
-                // Check loading status
+                // Check loading status with multiple attempts
                 setTimeout(() => {
                     if (!splineViewer.shadowRoot || splineViewer.shadowRoot.children.length === 0) {
-                        splineViewer.dispatchEvent(new Event('error'));
+                        console.log('First attempt failed, retrying...');
+                        // Try again after 5 seconds
+                        setTimeout(() => {
+                            if (!splineViewer.shadowRoot || splineViewer.shadowRoot.children.length === 0) {
+                                splineViewer.dispatchEvent(new Event('error'));
+                            }
+                        }, 5000);
                     }
-                }, 10000);
+                }, 8000);
             }
             
             // Initialize on DOM ready

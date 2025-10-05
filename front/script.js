@@ -142,34 +142,24 @@ function initWelcomeTiming() {
         // Check if we're on GitHub Pages (HTTPS)
         const isGitHubPages = window.location.hostname.includes('github.io');
         
-        if (isGitHubPages) {
-            setTimeout(() => {
-                const hasContent = splineViewer.shadowRoot && 
-                                  splineViewer.shadowRoot.children.length > 0 &&
-                                  splineViewer.offsetHeight > 0;
-                
-                if (!hasContent) {
-                    splineViewer.style.display = 'none';
-                    if (fallback) {
-                        fallback.style.display = 'block';
-                        initFallback3D();
-                    }
+        // Faster loading detection for both GitHub Pages and local
+        const checkTimeout = isGitHubPages ? 4000 : 3000;
+        
+        setTimeout(() => {
+            const hasContent = splineViewer.shadowRoot && 
+                              splineViewer.shadowRoot.children.length > 0;
+            
+            if (!hasContent) {
+                console.log('Quick check failed - showing fallback');
+                splineViewer.style.display = 'none';
+                if (fallback) {
+                    fallback.style.display = 'block';
+                    initFallback3D();
                 }
-            }, 8000);
-        } else {
-            setTimeout(() => {
-                const hasContent = splineViewer.shadowRoot && 
-                                  splineViewer.shadowRoot.children.length > 0;
-                
-                if (!hasContent) {
-                    splineViewer.style.display = 'none';
-                    if (fallback) {
-                        fallback.style.display = 'block';
-                        initFallback3D();
-                    }
-                }
-            }, 5000);
-        }
+            } else {
+                console.log('3D content loaded successfully');
+            }
+        }, checkTimeout);
     }
     
     // Expose function globally

@@ -22,11 +22,55 @@
     <!-- Welcome text in background -->
     <div class="welcome-text">WELCOME</div>
     
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+        text-align: center;
+        color: #64ffda;
+        font-family: Arial, sans-serif;
+    ">
+        <div style="
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(100, 255, 218, 0.3);
+            border-top: 3px solid #64ffda;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        "></div>
+        <div style="font-size: 18px; font-weight: 500;">Loading 3D Experience...</div>
+        <div style="font-size: 14px; opacity: 0.7; margin-top: 10px;">Please wait a moment</div>
+        <button id="skip-3d-btn" onclick="window.location.href='../index.html'" style="
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid #64ffda;
+            color: #64ffda;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.background='rgba(100, 255, 218, 0.2)'" onmouseout="this.style.background='rgba(100, 255, 218, 0.1)'">
+            Skip to Portfolio
+        </button>
+    </div>
+
     <!-- Security Layer 3: Obfuscated Spline Integration -->
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.64/build/spline-viewer.js"></script>
     <div id="secure-3d-container" style="width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 2;">
         <!-- 3D content will be loaded securely here -->
     </div>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
     
     <!-- Security Layer 4: Dynamic Secure Loading -->
     <script>
@@ -44,7 +88,38 @@
                 return atob(encrypted.split('').reverse().join(''));
             }
             
+            function hideLoadingIndicator() {
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+
+            function showFallback() {
+                console.log('Showing fallback animation');
+                hideLoadingIndicator();
+                const container = document.getElementById('secure-3d-container');
+                if (container) container.style.display = 'none';
+                const fallback = document.getElementById('fallback-3d');
+                if (fallback) {
+                    fallback.style.display = 'block';
+                    if (window.initFallback3D) window.initFallback3D();
+                }
+            }
+
             function loadSecureSpline() {
+                // Show loading indicator immediately
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'block';
+                }
+
+                // Set up quick timeout for fallback
+                const fallbackTimeout = setTimeout(() => {
+                    console.log('Loading timeout - showing fallback');
+                    showFallback();
+                }, 5000); // 5 second timeout
+
                 // Relaxed domain verification - allow GitHub Pages and localhost
                 const allowedDomains = ['github.io', 'localhost', '127.0.0.1', 'godragun.github.io'];
                 const currentDomain = window.location.hostname;
@@ -53,19 +128,27 @@
                 const blockedDomains = ['malicious.com', 'hacker.com'];
                 if (blockedDomains.some(domain => currentDomain.includes(domain))) {
                     console.warn('Blocked domain');
+                    clearTimeout(fallbackTimeout);
+                    showFallback();
                     return;
                 }
                 
                 // Relaxed rate limiting - allow more attempts
                 if (window.splineLoadAttempts >= 10) {
                     console.warn('Too many load attempts');
+                    clearTimeout(fallbackTimeout);
+                    showFallback();
                     return;
                 }
                 window.splineLoadAttempts = (window.splineLoadAttempts || 0) + 1;
                 
                 // Create secure spline viewer
                 const container = document.getElementById('secure-3d-container');
-                if (!container) return;
+                if (!container) {
+                    clearTimeout(fallbackTimeout);
+                    showFallback();
+                    return;
+                }
                 
                 const splineViewer = document.createElement('spline-viewer');
                 splineViewer.setAttribute('url', decryptComponent(secureComponents.base) + decryptComponent(secureComponents.path));
@@ -73,31 +156,32 @@
                 splineViewer.setAttribute('crossorigin', 'anonymous');
                 splineViewer.style.cssText = 'width: 100%; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 2;';
                 
-                // Add error handling
+                // Success handler
+                splineViewer.addEventListener('load', function() {
+                    console.log('Spline loaded successfully');
+                    clearTimeout(fallbackTimeout);
+                    hideLoadingIndicator();
+                });
+                
+                // Error handler
                 splineViewer.addEventListener('error', function() {
-                    console.warn('Spline loading failed, showing fallback');
-                    container.style.display = 'none';
-                    const fallback = document.getElementById('fallback-3d');
-                    if (fallback) {
-                        fallback.style.display = 'block';
-                        if (window.initFallback3D) window.initFallback3D();
-                    }
+                    console.warn('Spline loading failed');
+                    clearTimeout(fallbackTimeout);
+                    showFallback();
                 });
                 
                 container.appendChild(splineViewer);
                 
-                // Check loading status with multiple attempts
+                // Quick loading check
                 setTimeout(() => {
                     if (!splineViewer.shadowRoot || splineViewer.shadowRoot.children.length === 0) {
-                        console.log('First attempt failed, retrying...');
-                        // Try again after 5 seconds
-                        setTimeout(() => {
-                            if (!splineViewer.shadowRoot || splineViewer.shadowRoot.children.length === 0) {
-                                splineViewer.dispatchEvent(new Event('error'));
-                            }
-                        }, 5000);
+                        console.log('Quick check failed - will show fallback soon');
+                    } else {
+                        console.log('Spline content detected');
+                        clearTimeout(fallbackTimeout);
+                        hideLoadingIndicator();
                     }
-                }, 8000);
+                }, 3000); // Check after 3 seconds
             }
             
             // Initialize on DOM ready

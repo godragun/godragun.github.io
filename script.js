@@ -10,7 +10,6 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 // Initialize when page loads
 window.addEventListener('load', () => {
     initAnimations();
-    createStars();
     showNavigation();
     animateSkillLevels();
     initSmoothScrolling();
@@ -19,61 +18,10 @@ window.addEventListener('load', () => {
 
 // Initialize immediately for better performance
 document.addEventListener('DOMContentLoaded', () => {
-    createStars();
     initSmoothScrolling();
 });
 
-// Create galaxy stars background
-function createStars() {
-    const starBackground = document.getElementById('starBackground');
-    const numStars = 200;
-    
-    for (let i = 0; i < numStars; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        
-        // Create different sizes of stars
-        const size = Math.random() * 3 + 1;
-        star.style.width = size + 'px';
-        star.style.height = size + 'px';
-        
-        // Random animation delays and durations
-        star.style.animationDelay = Math.random() * 4 + 's';
-        star.style.animationDuration = (Math.random() * 4 + 2) + 's';
-        
-        // Add some shooting stars occasionally
-        if (Math.random() < 0.1) {
-            star.style.animation = `shootingStar ${Math.random() * 3 + 2}s linear infinite`;
-            star.style.background = 'linear-gradient(45deg, #fff, transparent)';
-        }
-        
-        starBackground.appendChild(star);
-    }
-    
-    // Add shooting star animation
-    const shootingStarStyle = document.createElement('style');
-    shootingStarStyle.textContent = `
-        @keyframes shootingStar {
-            0% {
-                transform: translateX(-100px) translateY(-100px);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateX(100px) translateY(100px);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(shootingStarStyle);
-}
+// Star background removed for cleaner look
 
 // Initialize all animations
 function initAnimations() {
@@ -112,12 +60,12 @@ function initAnimations() {
                 opacity: 1,
                 y: 0,
                 filter: 'blur(0px)',
-                duration: 0.6,
-                delay: index * 0.1,
+                duration: 0.3,
+                delay: index * 0.05,
                 ease: "power2.out",
                 scrollTrigger: {
                     trigger: word.closest('.scroll-reveal'),
-                    start: 'top 80%',
+                    start: 'top 90%',
                     toggleActions: 'play none none reverse'
                 }
             }
@@ -268,12 +216,12 @@ function initAnimations() {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.6,
-            stagger: 0.1,
+            duration: 0.3,
+            stagger: 0.05,
             ease: "power2.out",
             scrollTrigger: {
                 trigger: '.contact-info',
-                start: 'top 85%',
+                start: 'top 90%',
                 toggleActions: 'play none none reverse'
             }
         }
@@ -357,8 +305,9 @@ function initProfessionalEffects() {
         });
     });
 
-    // Smooth reveal animations
+    // Smooth reveal animations - faster for contact section
     gsap.utils.toArray('.scroll-reveal').forEach((element, index) => {
+        const isContactSection = element.closest('#contact');
         gsap.fromTo(element, 
             { 
                 opacity: 0, 
@@ -369,11 +318,12 @@ function initProfessionalEffects() {
                 opacity: 1,
                 y: 0,
                 scale: 1,
-                duration: 0.8,
+                duration: isContactSection ? 0.3 : 0.8,
+                delay: isContactSection ? 0 : index * 0.05,
                 ease: "power2.out",
                 scrollTrigger: {
                     trigger: element,
-                    start: 'top 85%',
+                    start: isContactSection ? 'top 90%' : 'top 85%',
                     toggleActions: 'play none none reverse'
                 }
             }

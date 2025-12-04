@@ -26,7 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // Create galaxy stars background
 function createStars() {
     const starBackground = document.getElementById('starBackground');
-    if (!starBackground) return;
+    if (!starBackground) {
+        console.warn('Star background element not found');
+        return;
+    }
+    
+    // Clear any existing stars to avoid duplicates
+    starBackground.innerHTML = '';
     
     const numStars = 200;
     
@@ -36,10 +42,15 @@ function createStars() {
         star.style.left = Math.random() * 100 + '%';
         star.style.top = Math.random() * 100 + '%';
         
-        // Create different sizes of stars
-        const size = Math.random() * 3 + 1;
+        // Create different sizes of stars (slightly larger for better visibility)
+        const size = Math.random() * 3 + 1.5;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
+        
+        // Ensure stars are visible
+        star.style.background = 'white';
+        star.style.borderRadius = '50%';
+        star.style.position = 'absolute';
         
         // Random animation delays and durations
         star.style.animationDelay = Math.random() * 4 + 's';
@@ -54,27 +65,32 @@ function createStars() {
         starBackground.appendChild(star);
     }
     
-    // Add shooting star animation
-    const shootingStarStyle = document.createElement('style');
-    shootingStarStyle.textContent = `
-        @keyframes shootingStar {
-            0% {
-                transform: translateX(-100px) translateY(-100px);
-                opacity: 0;
+    // Add shooting star animation (only add once)
+    if (!document.getElementById('shooting-star-style')) {
+        const shootingStarStyle = document.createElement('style');
+        shootingStarStyle.id = 'shooting-star-style';
+        shootingStarStyle.textContent = `
+            @keyframes shootingStar {
+                0% {
+                    transform: translateX(-100px) translateY(-100px);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateX(100px) translateY(100px);
+                    opacity: 0;
+                }
             }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateX(100px) translateY(100px);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(shootingStarStyle);
+        `;
+        document.head.appendChild(shootingStarStyle);
+    }
+    
+    console.log(`Created ${numStars} stars`);
 }
 
 // Initialize all animations

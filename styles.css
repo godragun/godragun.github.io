@@ -912,8 +912,8 @@ body {
 }
 
 .contact-icon-img {
-    width: 50px;
-    height: 50px;
+    width: 35px;
+    height: 35px;
     object-fit: contain;
     transition: all 0.3s ease;
 }
@@ -1140,8 +1140,8 @@ body {
     }
     
     .contact-icon-img {
-        width: 40px;
-        height: 40px;
+        width: 30px;
+        height: 30px;
     }
     
     .business-info {
@@ -1233,8 +1233,8 @@ body {
     }
     
     .contact-icon-img {
-        width: 35px;
-        height: 35px;
+        width: 25px;
+        height: 25px;
     }
     
     .business-info {
